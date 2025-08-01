@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["contact", "license", "licenseId", "sendEmail", "includeOfflineActivationCode"],
+  "properties": {
+    "contact": {
+      "type": "object",
+      "required": ["email", "firstName", "lastName"],
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" }
+      }
+    },
+    "includeOfflineActivationCode": { "type": "boolean" },
+    "license": {
+      "type": "object",
+      "required": ["productCode", "team"],
+      "properties": {
+        "productCode": { "type": "string" },
+        "team": { "type": "integer" }
+      }
+    },
+    "licenseId": { "type": "string" },
+    "sendEmail": { "type": "boolean" }
+  }
+}
