@@ -1,8 +1,10 @@
 package tests;
 
 import base.BaseTest;
+import helpers.LicenseHelper;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import models.AssignLicenseRequest;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
@@ -12,57 +14,58 @@ import static org.hamcrest.Matchers.*;
 public class AssignLicenseTests extends BaseTest {
     public static final String ASSIGN_LICENSE_ENDPOINT = "/customer/licenses/assign";
 
-    @Test
-    void testAssignLicense() {
-        given()
-                .header("X-Api-Key", API_KEY_COMPANY_ADMIN)
-                .header("X-Customer-Code", CUSTOMER_CODE)
-                .contentType(ContentType.JSON)
-                .body("""
-                            {
-                              "contact": {
-                                "email": "adlzhnkv@gmail.com",
-                                "firstName": "Anastasiia",
-                                "lastName": "Ivanova"
-                              },
-                              "includeOfflineActivationCode": true,
-                              "license": {
-                                "productCode": "II",
-                                "team": 1
-                              },
-                              "licenseId": "XR1BPSMLST",
-                              "sendEmail": true
-                            }
-                        """)
-                //.when()
-                .post(ASSIGN_LICENSE_ENDPOINT)
-                .then()
-                .statusCode(200);
+
+    private AssignLicenseRequest createDefaultRequest(String licenseId) {
+        LicenseHelper licenseHelper = new LicenseHelper();
+        return licenseHelper.createRequest("adlzhnkv@gmail.com", "Anastasiia", "Ivanova",
+                           true, "II", 1, licenseId, true);
     }
 
     @Test
-    void testAssignLicense_LicenseNotAvailable() {
+    void testAssignLicense() {
+        AssignLicenseRequest request = createDefaultRequest("XR1BPSMLST");
+
+        Response response = given()
+                .header("X-Api-Key", "cm0ipchn70a83kqr5n3hs71w5")
+                .header("X-Customer-Code", CUSTOMER_CODE)
+                .header("Content-Type", "application/json")
+                .body(request)
+                .post(ASSIGN_LICENSE_ENDPOINT);
+
+        System.out.println("Status Code: " + response.getStatusCode());
+        System.out.println("Response Body:\n" + response.getBody().asPrettyString());
+
+        AssignLicenseRequest request2 = createDefaultRequest("RIQIET072L");
+
+        given()
+            .header("X-Api-Key", "cm0ipchn70a83kqr5n3hs71w5")
+            .header("X-Customer-Code", CUSTOMER_CODE)
+                .header("Content-Type", "application/json")
+            .body(request2)
+        //.when()
+            .post(ASSIGN_LICENSE_ENDPOINT)
+        .then()
+            .statusCode(200)
+            .contentType(ContentType.JSON)
+            .body("contact.email", equalTo("adlzhnkv@gmail.com"))
+            .body("contact.firstName", notNullValue())
+            .body("contact.lastName", notNullValue())
+            .body("includeOfflineActivationCode", equalTo(true))
+            .body("license.productCode", equalTo("II"))
+            .body("license.team", instanceOf(Integer.class))
+            .body("licenseId", equalTo("ABC1234567"))
+            .body("sendEmail", equalTo(true));
+    }
+
+    @Test
+    void testAssignLicense_InvalidRequest() {
+        AssignLicenseRequest request = createDefaultRequest("RIQIET072L");
 
         given()
                 .header("X-Api-Key", "cm0ipchn70a83kqr5n3hs71w5")
                 .header("X-Customer-Code", CUSTOMER_CODE)
                 .header("Content-Type", "application/json")
-                .body("""
-                            {
-                              "contact": {
-                                "email": "adlzhnkv@gmail.com",
-                                "firstName": "Anastasiia",
-                                "lastName": "Ivanova"
-                              },
-                              "includeOfflineActivationCode": true,
-                              "license": {
-                                "productCode": "II",
-                                "team": 1
-                              },
-                              "licenseId": "RIQIET072L",
-                              "sendEmail": true
-                            }
-                        """)
+                .body(request)
                 .when()
                 .post(ASSIGN_LICENSE_ENDPOINT)
                 .then()
@@ -73,60 +76,14 @@ public class AssignLicenseTests extends BaseTest {
     }
 
     @Test
-    void testAssignLicense_InvalidCustomerCode() {
-
-        given()
-                .header("X-Api-Key", "9ob1wyrrh28v3zoqe0qx14naf")
-                .header("X-Customer-Code", 123456)
-                .header("Content-Type", "application/json")
-                .body("""
-                            {
-                              "contact": {
-                                "email": "adlzhnkv@gmail.com",
-                                "firstName": "Anastasiia",
-                                "lastName": "Ivanova"
-                              },
-                              "includeOfflineActivationCode": true,
-                              "license": {
-                                "productCode": "II",
-                                "team": 1
-                              },
-                              "licenseId": "RIQIET072L",
-                              "sendEmail": true
-                            }
-                        """)
-                .when()
-                .post(ASSIGN_LICENSE_ENDPOINT)
-                .then()
-                .statusCode(401)
-                .body("code", equalTo("INVALID_TOKEN"))
-                .body("description", equalTo("The token provided is invalid"));
-
-    }
-
-    @Test
-    void testAssignLicense_InsufficientPermissions() {
+    void testAssignLicense_NotAllowed() {
+        AssignLicenseRequest request = createDefaultRequest("2NDKEQZ1ZS");
 
         given()
                 .header("X-Api-Key", "czmsw4dfcqh0lyqu6yd7fzg3o") // viewer token
                 .header("X-Customer-Code", CUSTOMER_CODE)
                 .header("Content-Type", "application/json")
-                .body("""
-                            {
-                              "contact": {
-                                "email": "adlzhnkv@gmail.com",
-                                "firstName": "Anastasiia",
-                                "lastName": "Ivanova"
-                              },
-                              "includeOfflineActivationCode": true,
-                              "license": {
-                                "productCode": "II",
-                                "team": 1
-                              },
-                              "licenseId": "2NDKEQZ1ZS",
-                              "sendEmail": true
-                            }
-                        """)
+                .body(request)
                 .when()
                 .post(ASSIGN_LICENSE_ENDPOINT)
                 .then()

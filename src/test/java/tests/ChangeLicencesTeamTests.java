@@ -185,15 +185,8 @@ public class ChangeLicencesTeamTests extends BaseTest {
 
     @BeforeAll
     static void setUp() {
-        given()
-                .header("X-Api-Key", API_KEY_COMPANY_ADMIN)
-                .header("X-Customer-Code", CUSTOMER_CODE)
-                .contentType(ContentType.JSON)
-                .body(new TransferRequest(List.of("U886DF2U2D", "JKFK70A7F0", "07WB7RP9UB", "PZ5RBM8QZA"), 2573297))
-                .when()
-                .post(CHANGE_TEAM_ENDPOINT)
-                .then()
-                .statusCode(200);
+        LicenseHelper licenseHelper = new LicenseHelper();
+        licenseHelper.moveLicensesBack();
     }
 
     @AfterAll
