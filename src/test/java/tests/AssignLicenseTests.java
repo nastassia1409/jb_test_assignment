@@ -62,7 +62,7 @@ public class AssignLicenseTests extends BaseTest {
                     }
                 """)
         //.when()
-            .post("/customer/licenses/assign")
+            .post(ASSIGN_LICENSE_ENDPOINT)
         .then()
             .statusCode(200)
             .contentType(ContentType.JSON)
@@ -100,7 +100,7 @@ public class AssignLicenseTests extends BaseTest {
                     }
                 """)
                 .when()
-                .post("/customer/licenses/assign")
+                .post(ASSIGN_LICENSE_ENDPOINT)
                 .then()
                 .statusCode(400)
                 .body("code", equalTo("LICENSE_IS_NOT_AVAILABLE_TO_ASSIGN"))
@@ -132,7 +132,7 @@ public class AssignLicenseTests extends BaseTest {
                     }
                 """)
                 .when()
-                .post("/customer/licenses/assign")
+                .post(ASSIGN_LICENSE_ENDPOINT)
                 .then()
                 .statusCode(403)
                 .body("code", equalTo("INSUFFICIENT_PERMISSIONS"))
@@ -161,7 +161,7 @@ public class AssignLicenseTests extends BaseTest {
                     }
                 """)
         .when()
-            .post("/customer/licenses/assign")
+            .post(ASSIGN_LICENSE_ENDPOINT)
         .then()
             .statusCode(200)
             .body(matchesJsonSchemaInClasspath("schemas/assign-license-schema.json"));

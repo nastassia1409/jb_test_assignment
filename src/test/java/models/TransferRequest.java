@@ -2,7 +2,6 @@ package models;
 
 import java.util.List;
 
-// Helper class for request body
 public class TransferRequest {
     public List<String> licenseIds;
     public int targetTeamId;

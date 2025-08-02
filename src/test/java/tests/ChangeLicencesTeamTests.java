@@ -17,6 +17,7 @@ public class ChangeLicencesTeamTests extends BaseTest {
     private static final String INVALID_LICENSE_ID = "INVALID";
     private static final String VALID_TEAM_ID = "";
     private static final String INVALID_TEAM_ID = "";
+    public static final int TEAM_1_ID = 2573297;
     public static final int TEAM_2_ID = 2717496;
 
     @Test
@@ -145,7 +146,7 @@ public class ChangeLicencesTeamTests extends BaseTest {
         given()
                 .header("X-Customer-Code", "invalid-code")
                 .contentType(ContentType.JSON)
-                .body(new TransferRequest(List.of("LICENSE-001"), 1234))
+                .body(new TransferRequest(List.of("WT6QU3QO7S"), 1234))
                 .when()
                 .post(CHANGE_TEAM_ENDPOINT)
                 .then()
@@ -169,7 +170,7 @@ public class ChangeLicencesTeamTests extends BaseTest {
         given()
                 .header("X-Customer-Code", API_KEY_COMPANY_ADMIN)
                 .contentType(ContentType.JSON)
-                .body(new TransferRequest(List.of("LICENSE-001"), 999999))
+                .body(new TransferRequest(List.of("WT6QU3QO7S"), 999999))
                 .when()
                 .post(CHANGE_TEAM_ENDPOINT)
                 .then()
