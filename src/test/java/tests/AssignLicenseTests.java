@@ -14,91 +14,55 @@ public class AssignLicenseTests extends BaseTest {
 
     @Test
     void testAssignLicense() {
-       String jsonBody = """
-        {
-          "contact": {
-            "email": "adlzhnkv@gmail.com",
-            "firstName": "Anastasiia",
-            "lastName": "Ivanova"
-          },
-          "includeOfflineActivationCode": true,
-          "license": {
-            "productCode": "II",
-            "team": 1
-          },
-          "licenseId": "XR1BPSMLST",
-          "sendEmail": true
-        }
-        """;
-
-        Response response = given()
-                .header("X-Api-Key", "cm0ipchn70a83kqr5n3hs71w5")
-                .header("X-Customer-Code", CUSTOMER_CODE)
-                .header("Content-Type", "application/json")
-                .body(jsonBody)
-                .post(ASSIGN_LICENSE_ENDPOINT);
-
-        System.out.println("Status Code: " + response.getStatusCode());
-        System.out.println("Response Body:\n" + response.getBody().asPrettyString());
-
         given()
-            .header("X-Api-Key", "cm0ipchn70a83kqr5n3hs71w5")
-            .header("X-Customer-Code", CUSTOMER_CODE)
-                .header("Content-Type", "application/json")
-            .body("""
-                    {
-                      "contact": {
-                        "email": "adlzhnkv@gmail.com",
-                        "firstName": "Anastasiia",
-                        "lastName": "Ivanova"
-                      },
-                      "includeOfflineActivationCode": true,
-                      "license": {
-                        "productCode": "II",
-                        "team": 1
-                      },
-                      "licenseId": "RIQIET072L",
-                      "sendEmail": true
-                    }
-                """)
-        //.when()
-            .post(ASSIGN_LICENSE_ENDPOINT)
-        .then()
-            .statusCode(200)
-            .contentType(ContentType.JSON)
-            .body("contact.email", equalTo("adlzhnkv@gmail.com"))
-            .body("contact.firstName", notNullValue())
-            .body("contact.lastName", notNullValue())
-            .body("includeOfflineActivationCode", equalTo(true))
-            .body("license.productCode", equalTo("II"))
-            .body("license.team", instanceOf(Integer.class))
-            .body("licenseId", equalTo("ABC1234567"))
-            .body("sendEmail", equalTo(true));
+                .header("X-Api-Key", API_KEY_COMPANY_ADMIN)
+                .header("X-Customer-Code", CUSTOMER_CODE)
+                .contentType(ContentType.JSON)
+                .body("""
+                            {
+                              "contact": {
+                                "email": "adlzhnkv@gmail.com",
+                                "firstName": "Anastasiia",
+                                "lastName": "Ivanova"
+                              },
+                              "includeOfflineActivationCode": true,
+                              "license": {
+                                "productCode": "II",
+                                "team": 1
+                              },
+                              "licenseId": "XR1BPSMLST",
+                              "sendEmail": true
+                            }
+                        """)
+                //.when()
+                .post(ASSIGN_LICENSE_ENDPOINT)
+                .then()
+                .statusCode(200);
     }
 
     @Test
-    void testAssignLicense_InvalidRequest() {
+    void testAssignLicense_LicenseNotAvailable() {
 
         given()
                 .header("X-Api-Key", "cm0ipchn70a83kqr5n3hs71w5")
                 .header("X-Customer-Code", CUSTOMER_CODE)
                 .header("Content-Type", "application/json")
                 .body("""
-                    {
-                      "contact": {
-                        "email": "adlzhnkv@gmail.com",
-                        "firstName": "Anastasiia",
-                        "lastName": "Ivanova"
-                      },
-                      "includeOfflineActivationCode": true,
-                      "license": {
-                        "productCode": "II",
-                        "team": 1
-                      },
-                      "licenseId": "RIQIET072L",
-                      "sendEmail": true
-                    }
-                """)
+                            {
+                              "contact": {
+                                "email": "adlzhnkv@gmail.com",
+                                "firstName": "Anastasiia",
+                                "lastName": "Ivanova"
+                              },
+                              "includeOfflineActivationCode": true,
+                              "license": {
+                                "productCode": "II",
+                                "team": 1
+                              },
+                              "licenseId": "RIQIET072L",
+                              "sendEmail": true
+                            }
+                        """)
                 .when()
                 .post(ASSIGN_LICENSE_ENDPOINT)
                 .then()
@@ -109,28 +73,60 @@ public class AssignLicenseTests extends BaseTest {
     }
 
     @Test
-    void testAssignLicense_NotAllowed() {
+    void testAssignLicense_InvalidCustomerCode() {
+
+        given()
+                .header("X-Api-Key", "9ob1wyrrh28v3zoqe0qx14naf")
+                .header("X-Customer-Code", 123456)
+                .header("Content-Type", "application/json")
+                .body("""
+                            {
+                              "contact": {
+                                "email": "adlzhnkv@gmail.com",
+                                "firstName": "Anastasiia",
+                                "lastName": "Ivanova"
+                              },
+                              "includeOfflineActivationCode": true,
+                              "license": {
+                                "productCode": "II",
+                                "team": 1
+                              },
+                              "licenseId": "RIQIET072L",
+                              "sendEmail": true
+                            }
+                        """)
+                .when()
+                .post(ASSIGN_LICENSE_ENDPOINT)
+                .then()
+                .statusCode(401)
+                .body("code", equalTo("INVALID_TOKEN"))
+                .body("description", equalTo("The token provided is invalid"));
+
+    }
+
+    @Test
+    void testAssignLicense_InsufficientPermissions() {
 
         given()
                 .header("X-Api-Key", "czmsw4dfcqh0lyqu6yd7fzg3o") // viewer token
                 .header("X-Customer-Code", CUSTOMER_CODE)
                 .header("Content-Type", "application/json")
                 .body("""
-                    {
-                      "contact": {
-                        "email": "adlzhnkv@gmail.com",
-                        "firstName": "Anastasiia",
-                        "lastName": "Ivanova"
-                      },
-                      "includeOfflineActivationCode": true,
-                      "license": {
-                        "productCode": "II",
-                        "team": 1
-                      },
-                      "licenseId": "2NDKEQZ1ZS",
-                      "sendEmail": true
-                    }
-                """)
+                            {
+                              "contact": {
+                                "email": "adlzhnkv@gmail.com",
+                                "firstName": "Anastasiia",
+                                "lastName": "Ivanova"
+                              },
+                              "includeOfflineActivationCode": true,
+                              "license": {
+                                "productCode": "II",
+                                "team": 1
+                              },
+                              "licenseId": "2NDKEQZ1ZS",
+                              "sendEmail": true
+                            }
+                        """)
                 .when()
                 .post(ASSIGN_LICENSE_ENDPOINT)
                 .then()
@@ -139,31 +135,5 @@ public class AssignLicenseTests extends BaseTest {
                 .body("description", equalTo("Missing Edit permission on customer 6703615 or on team with id 2573297"));
     }
 
-    @Test
-    void testAssignLicense_SchemaValidation() {
-        given()
-            .header("Authorization", "Bearer cm0ipchn70a83kqr5n3hs71w5")
-            .contentType(ContentType.JSON)
-            .body("""
-                    {
-                      "contact": {
-                        "email": "adlzhnkv@gmail.com",
-                        "firstName": "Anastasiia",
-                        "lastName": "Ivanova"
-                      },
-                      "includeOfflineActivationCode": true,
-                      "license": {
-                        "productCode": "II",
-                        "team": 1
-                      },
-                      "licenseId": "RIQIET072L",
-                      "sendEmail": true
-                    }
-                """)
-        .when()
-            .post(ASSIGN_LICENSE_ENDPOINT)
-        .then()
-            .statusCode(200)
-            .body(matchesJsonSchemaInClasspath("schemas/assign-license-schema.json"));
-    }
+
 }

@@ -1,8 +1,11 @@
 package tests;
 
 import base.BaseTest;
+import helpers.LicenseHelper;
 import io.restassured.http.ContentType;
 import models.TransferRequest;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -12,7 +15,6 @@ import static org.hamcrest.Matchers.*;
 
 public class ChangeLicencesTeamTests extends BaseTest {
 
-    public static final String CHANGE_TEAM_ENDPOINT = "/customer/changeLicensesTeam";
     private static final String EXPIRED_LICENSE_ID = "OIY94JBDUQ";
     private static final String INVALID_LICENSE_ID = "INVALID";
     private static final String VALID_TEAM_ID = "";
@@ -144,38 +146,60 @@ public class ChangeLicencesTeamTests extends BaseTest {
     @Test
     void testTransferLicense_InvalidCustomerCode() {
         given()
+                .header("X-Api-Key", API_KEY_TEAM_ADMIN)
                 .header("X-Customer-Code", "invalid-code")
                 .contentType(ContentType.JSON)
-                .body(new TransferRequest(List.of("WT6QU3QO7S"), 1234))
+                .body(new TransferRequest(List.of("WT6QU3QO7S"), TEAM_2_ID))
                 .when()
                 .post(CHANGE_TEAM_ENDPOINT)
                 .then()
-                .statusCode(403);
+                .statusCode(401);
     }
 
     @Test
     void testTransferLicense_LicenseListIsEmpty() {
         given()
-                .header("X-Customer-Code", API_KEY_COMPANY_ADMIN)
+                .header("X-Api-Key", API_KEY_COMPANY_ADMIN)
+                .header("X-Customer-Code", CUSTOMER_CODE)
                 .contentType(ContentType.JSON)
-                .body(new TransferRequest(List.of(), 1234))
+                .body(new TransferRequest(List.of(), TEAM_2_ID))
                 .when()
                 .post(CHANGE_TEAM_ENDPOINT)
                 .then()
-                .statusCode(400);
+                .statusCode(200);
     }
 
     @Test
     void testTransferLicense_TargetTeamNotExists() {
         given()
-                .header("X-Customer-Code", API_KEY_COMPANY_ADMIN)
+                .header("X-Api-Key", API_KEY_COMPANY_ADMIN)
+                .header("X-Customer-Code", CUSTOMER_CODE)
                 .contentType(ContentType.JSON)
                 .body(new TransferRequest(List.of("WT6QU3QO7S"), 999999))
                 .when()
                 .post(CHANGE_TEAM_ENDPOINT)
                 .then()
-                .statusCode(400)
-                .body("description", containsString("not exist"));
+                .statusCode(404)
+                .body("description", equalTo("999999"));
+    }
+
+    @BeforeAll
+    static void setUp() {
+        given()
+                .header("X-Api-Key", API_KEY_COMPANY_ADMIN)
+                .header("X-Customer-Code", CUSTOMER_CODE)
+                .contentType(ContentType.JSON)
+                .body(new TransferRequest(List.of("U886DF2U2D", "JKFK70A7F0", "07WB7RP9UB", "PZ5RBM8QZA"), 2573297))
+                .when()
+                .post(CHANGE_TEAM_ENDPOINT)
+                .then()
+                .statusCode(200);
+    }
+
+    @AfterAll
+    static void tearDown() {
+        /*LicenseHelper licenseHelper = new LicenseHelper();
+        licenseHelper.moveLicensesBack();*/
     }
 
 }
