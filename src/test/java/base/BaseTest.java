@@ -24,7 +24,4 @@ public abstract class BaseTest {
         RestAssured.defaultParser = Parser.JSON;
     }
 
-    @AfterEach
-    void tearDown(){
-    }
 }
