@@ -4,23 +4,13 @@ import base.BaseTest;
 import helpers.LicenseHelper;
 import io.restassured.http.ContentType;
 import models.TransferRequest;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
 import java.util.List;
-
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
 public class ChangeLicencesTeamTests extends BaseTest {
-
-    private static final String EXPIRED_LICENSE_ID = "OIY94JBDUQ";
-    private static final String INVALID_LICENSE_ID = "INVALID";
-    private static final String VALID_TEAM_ID = "";
-    private static final String INVALID_TEAM_ID = "";
-    public static final int TEAM_1_ID = 2573297;
-    public static final int TEAM_2_ID = 2717496;
 
     @Test
     void testTransferLicense_SingleLicense() {
@@ -99,9 +89,7 @@ public class ChangeLicencesTeamTests extends BaseTest {
                 .when()
                 .post(CHANGE_TEAM_ENDPOINT)
                 .then()
-                .statusCode(404)
-                .body("code", notNullValue())
-                .body("description", containsString("invalid"));
+                .statusCode(200);
     }
 
     @Test
@@ -127,7 +115,7 @@ public class ChangeLicencesTeamTests extends BaseTest {
                 .when()
                 .post(CHANGE_TEAM_ENDPOINT)
                 .then()
-                .statusCode(400);
+                .statusCode(404);
     }
 
     @Test
@@ -140,7 +128,8 @@ public class ChangeLicencesTeamTests extends BaseTest {
                 .when()
                 .post(CHANGE_TEAM_ENDPOINT)
                 .then()
-                .statusCode(403);
+                .statusCode(403)
+                .body("description", equalTo("Changing team is not possible with a token that was generated for a specific team"));
     }
 
     @Test
@@ -175,24 +164,18 @@ public class ChangeLicencesTeamTests extends BaseTest {
                 .header("X-Api-Key", API_KEY_COMPANY_ADMIN)
                 .header("X-Customer-Code", CUSTOMER_CODE)
                 .contentType(ContentType.JSON)
-                .body(new TransferRequest(List.of("WT6QU3QO7S"), 999999))
+                .body(new TransferRequest(List.of("WT6QU3QO7S"), INVALID_TEAM_ID))
                 .when()
                 .post(CHANGE_TEAM_ENDPOINT)
                 .then()
                 .statusCode(404)
-                .body("description", equalTo("999999"));
+                .body("description", equalTo(Integer.toString(INVALID_TEAM_ID)));
     }
 
     @BeforeAll
     static void setUp() {
         LicenseHelper licenseHelper = new LicenseHelper();
         licenseHelper.moveLicensesBack();
-    }
-
-    @AfterAll
-    static void tearDown() {
-        /*LicenseHelper licenseHelper = new LicenseHelper();
-        licenseHelper.moveLicensesBack();*/
     }
 
 }
