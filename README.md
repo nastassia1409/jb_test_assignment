@@ -4,7 +4,10 @@ src/test/resources/test-cases/
 ### API tests:
 src/test/java/tests
 
-To launch tests please add API tokens in BaseTest class.
+To launch tests please add API tokens in BaseTest class:
+API_KEY_COMPANY_ADMIN
+API_KEY_TEAM_ADMIN
+API_KEY_VIEWER
 
 ### Found issues:
 1. /customer/licenses/assign returns 200 when trying to assign license that belongs to another team.
