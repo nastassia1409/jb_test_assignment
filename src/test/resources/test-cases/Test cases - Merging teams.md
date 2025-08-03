@@ -117,4 +117,3 @@ This test suite covers team merge feature.
 
 ---
 
-### TC09 

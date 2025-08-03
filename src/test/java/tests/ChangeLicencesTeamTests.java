@@ -6,9 +6,7 @@ import io.restassured.http.ContentType;
 import models.TransferRequest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
 import java.util.List;
-
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
@@ -130,7 +128,8 @@ public class ChangeLicencesTeamTests extends BaseTest {
                 .when()
                 .post(CHANGE_TEAM_ENDPOINT)
                 .then()
-                .statusCode(403);
+                .statusCode(403)
+                .body("description", equalTo("Changing team is not possible with a token that was generated for a specific team"));
     }
 
     @Test
@@ -178,6 +177,5 @@ public class ChangeLicencesTeamTests extends BaseTest {
         LicenseHelper licenseHelper = new LicenseHelper();
         licenseHelper.moveLicensesBack();
     }
-
 
 }
